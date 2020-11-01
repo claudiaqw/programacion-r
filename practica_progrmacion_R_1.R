@@ -23,5 +23,9 @@ colnames(data)
 any(is.na.data.frame(data))
 
 #9
-level_factor <- factor(data["level"], levels = c(""))
-level_factor
+data["level"] <- factor(data$level, levels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"), labels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"))
+data["subject"] <- factor(data$subject, levels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"), labels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"))
+
+#10
+
+
