@@ -1,5 +1,5 @@
 #1
-data <- read.csv('udemy_courses.csv', header = TRUE, sep = ",")
+data <- read.csv('udemy_courses.csv', header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 #2
 class(data)
@@ -27,7 +27,7 @@ data["level"] <- factor(data$level, levels = c("Beginner Level", "Intermediate L
 data["subject"] <- factor(data$subject, levels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"), labels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"))
 
 #10
-data["is_paid"] <- as.data.frame.logical(data)
+data["is_paid"] <- as.logical(data["is_paid"])
 
 #11
 mean(data$num_subscribers)
@@ -46,6 +46,42 @@ data[1:30, 1:(ncol(data)-3)]
 
 #16
 data[-31: -nrow(data), -(ncol(data)-2):-ncol(data)]
+
+#17
+quantile(data$price, probs = seq(0, 1, 0.25))
+
+#18
+quantile(data$price, seq(0, 1, 0.1))
+
+#19 #TODO
+summary(data)
+
+#20
+data$course_title
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
