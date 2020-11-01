@@ -27,5 +27,56 @@ data["level"] <- factor(data$level, levels = c("Beginner Level", "Intermediate L
 data["subject"] <- factor(data$subject, levels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"), labels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"))
 
 #10
+data["is_paid"] <- as.data.frame.logical(data)
+
+#11
+mean(data$num_subscribers)
+
+#12
+media <- c(mean(data$num_subscribers), mean(data$num_lectures))
+
+#13
+sapply(data, is.numeric)
+
+#14
+
+ncol(data)
+
+#15
+data[1:30, 1:(ncol(data)-3)]
+
+#16
+test <- data[-31: -nrow(data), -3]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
