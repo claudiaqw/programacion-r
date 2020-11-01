@@ -38,9 +38,8 @@ media <- c(mean(data$num_subscribers), mean(data$num_lectures))
 #13
 sapply(data, is.numeric)
 
-#14
+#14 #TODO
 
-ncol(data)
 
 #15
 data[1:30, 1:(ncol(data)-3)]
