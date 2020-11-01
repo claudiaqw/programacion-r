@@ -1,5 +1,5 @@
 #1
-data <- read.csv('udemy_courses.csv')
+data <- read.csv('udemy_courses.csv', header = TRUE, sep = ",")
 
 #2
 class(data)
@@ -45,4 +45,9 @@ sapply(data, is.numeric)
 data[1:30, 1:(ncol(data)-3)]
 
 #16
-test <- data[-31: -nrow(data), -3]
+data[-31: -nrow(data), -(ncol(data)-2):-ncol(data)]
+
+
+
+
+
