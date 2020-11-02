@@ -101,8 +101,7 @@ cheap_expensive(45,mean(data$price))
 data <- cbind(data, cheap_expensive = sapply(data$price, cheap_expensive, threshold = mean(data$price)))
 
 #32. Repite el ejercicio anterior usando el paquete PURRR
+library(purrr)
+data <- cbind(data, cheap_expensive_purr = map_chr(data$price, cheap_expensive, threshold = mean(data$price)))
 
-
-
-
-
+identical(data$cheap_expensive,data$cheap_expensive_purr)
