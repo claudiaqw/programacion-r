@@ -23,8 +23,14 @@ colnames(data)
 any(is.na.data.frame(data))
 
 #9. Crea un factor con etiquetas para dicha columna (level y subject) y asígnalo a la columna de nuevo
+# Via 1
 data["level"] <- factor(data$level, levels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"), labels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"))
 data["subject"] <- factor(data$subject, levels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"), labels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"))
+
+#Via 2
+data["level"] <- factor(data$level, levels = unique(data$level), labels = unique(data$level))
+data["subject"] <- factor(data$subject, levels = unique(data$subject), labels = unique(data$subject))
+
 
 #10. Conviérte a variable booleana (is_paid) y asígnala a la propia columna.
 data["is_paid"] <- as.logical(data$is_paid)
@@ -105,3 +111,15 @@ library(purrr)
 data <- cbind(data, cheap_expensive_purr = map_chr(data$price, cheap_expensive, threshold = mean(data$price)))
 
 identical(data$cheap_expensive,data$cheap_expensive_purr)
+
+
+unique(data$level)
+
+d1 <- factor(data$level, levels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"), labels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"))
+d2 <- factor(data$level, levels = unique(data$level), labels = unique(data$level))
+
+identical(d1,d2)
+class(d1)
+class(d2)
+
+
