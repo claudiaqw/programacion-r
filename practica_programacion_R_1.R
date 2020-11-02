@@ -26,8 +26,8 @@ any(is.na.data.frame(data))
 data["level"] <- factor(data$level, levels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"), labels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"))
 data["subject"] <- factor(data$subject, levels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"), labels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"))
 
-#10
-data["is_paid"] <- as.logical(data["is_paid"])
+#10 #TODO
+data["is_paid"] <- as.logical(data$is_paid)
 
 #11
 mean(data$num_subscribers)
@@ -36,10 +36,10 @@ mean(data$num_subscribers)
 media <- c(mean(data$num_subscribers), mean(data$num_lectures))
 
 #13
-sapply(data, is.numeric)
+numeric.columns <- sapply(data, is.numeric)
 
-#14 #TODO
-
+#14
+sapply(data[numeric.columns][,-1], mean)
 
 #15
 data[1:30, 1:(ncol(data)-3)]
@@ -53,11 +53,16 @@ quantile(data$price, probs = seq(0, 1, 0.25))
 #18
 quantile(data$price, seq(0, 1, 0.1))
 
-#19 #TODO
+#19
 summary(data)
 
 #20
-data$course_title
+length(unique(data$course_title))
+
+
+
+
+
 
 
 
