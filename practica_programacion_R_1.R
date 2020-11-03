@@ -1,3 +1,5 @@
+### Ejercicio 1
+
 #1. Lee el fichero y asígnalo a una variable. 
 data <- read.csv('udemy_courses.csv', header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
