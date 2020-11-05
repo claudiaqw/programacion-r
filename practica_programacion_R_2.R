@@ -57,25 +57,42 @@ original_dataset_reshape2 = dcast(long_dataset_reshape2,
 ######################################################
 
 library(dplyr)
+library(data.table)
+data.dt <- as.data.table(data)
+
 #1. precio medio de los cursos dependiendo de su temática y ordena el resultado según el precio medio
+#dplyr
 data  %>% 
   group_by(subject) %>% 
   summarise(price_mean = mean(price)) %>% 
-  arrange(desc(price_mean))
+  arrange(price_mean)
+
+#data.table
+data.dt[, .(price_mean = mean(price)), by = .(subject)][order(price_mean)]
+
 
 #2. Calcula la duración máxima y mínima dependiendo de si un curso es gratuito o de pago.
+#dplyr
 data %>% 
   group_by(is_paid) %>% 
   summarise(min = min(content_duration), max = max(content_duration))
+
+#data.table
+data.dt[, .(min = min(content_duration), max = max(content_duration)), by = .(is_paid)]
+
   
-#3. Calcula el número de cursos publicado cada año. 
+#3. Calcula el número de cursos publicado cada año.
+#dplyr
 data %>% 
   mutate(year = format(data$published_timestamp, format="%Y")) %>% 
   group_by(year) %>% 
   summarise(courses_per_year = n())
+
+
   
 
 #4. Cuál es la temática que tiene el mayor número de clases medias
+#dplyr
 data %>% 
   group_by(subject) %>% 
   summarize(class_mean = mean(num_lectures)) %>% 
@@ -84,6 +101,7 @@ data %>%
 
 
 #5. Restringiéndonos a los cursos lanzados en 2016, ¿qué temática cuenta con más horas de clase?
+#dplyr
 data %>% 
   mutate(year = format(data$published_timestamp, format="%Y")) %>% 
   filter(year == "2016") %>% 
@@ -94,12 +112,12 @@ data %>%
 
 
 #6. Para todos los cursos posteriores a 2015, calcula las horas del curso más largo, del más corto y el número de estudiantes medio.
+#dplyr
 data %>% 
   mutate(year = as.numeric(format(data$published_timestamp, format="%Y"))) %>% 
   filter(year > 2015) %>% 
   group_by(year) %>% 
   summarise(longest_course = max(content_duration), shortest_course = min(content_duration), students_mean = mean(num_subscribers))
-  
   
   
 
