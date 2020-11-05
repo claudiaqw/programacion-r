@@ -6,7 +6,9 @@ data["level"] <- factor(data$level, levels = unique(data$level), labels = unique
 data["subject"] <- factor(data$subject, levels = unique(data$subject), labels = unique(data$subject))
 data["is_paid"] <- as.logical(data$is_paid)
 
-### Ejercicio 2
+###################################################
+### Ejercicio 2 - Preparación (tidyr, reshape2) ###
+###################################################
 
 library(tidyr)
 library(reshape2)
@@ -19,8 +21,7 @@ data <- unite(data, course_id_title, course_id, course_title, sep = "_", remove 
 data["published_timestamp"] <- as.Date(data$published_timestamp)
 
 
-#3. Crea un long dataset ...
-
+#3. Crea un long dataset ... (from wide to long)
 #tidyr
 long_dataset_tidyr <- pivot_longer(data, 
                             cols = c(num_subscribers, num_reviews,  num_lectures), 
@@ -30,19 +31,28 @@ long_dataset_tidyr <- pivot_longer(data,
 
 #reshape2
 long_dataset_reshape2 = melt(data, 
-                             c("num_subscribers", "num_reviews", "num_lectures"), 
+                             id.vars = setdiff(colnames(data), c("num_subscribers", "num_reviews",  "num_lectures")),
                              variable.name="VARIABLE", 
-                             value.name="VALUE")
+                             value.name="VALUE")[c("course_id", "course_title", "VARIABLE", "VALUE")]
 
-#4. proceso inversoe
 
+#4. proceso inverso (from long to wide)
 #tidyr
-original_data_tidyr = pivot_wider(long_dataset_tidyr, names_from ="VARIABLE", values_from = "VALUE" )
+original_dataset_tidyr = pivot_wider(long_dataset_tidyr,
+                                     names_from = "VARIABLE",
+                                     values_from = "VALUE")
+
+
 
 #reshape2
-original_data_reshape2
+original_dataset_reshape2 = dcast(long_dataset_reshape2,
+                                  formula = course_id + course_title ~ VARIABLE,
+                                  value.var = "VALUE")
 
 
 
-library(reshape2)
+######################################################
+### Ejercicio 2 - Manipulación (dplyr, data.table) ###
+######################################################
+
 
