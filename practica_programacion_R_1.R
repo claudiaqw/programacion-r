@@ -22,16 +22,19 @@ dim(data)
 colnames(data)
 
 #8. Comprueba si alguna de las variables contiene NAs
-any(is.na.data.frame(data))
+any(is.na(data))
 
 #9. Crea un factor con etiquetas para dicha columna (level y subject) y asígnalo a la columna de nuevo
 # Via 1
-data["level"] <- factor(data$level, levels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"), labels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"))
+data["level"] <- factor(data$level, 
+                        levels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"), labels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"))
 data["subject"] <- factor(data$subject, levels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"), labels = c("Business Finance", "Graphic Design", "Musical Instruments", "Web Development"))
 
 #Via 2
-data["level"] <- factor(data$level, levels = unique(data$level), labels = unique(data$level))
-data["subject"] <- factor(data$subject, levels = unique(data$subject), labels = unique(data$subject))
+data["level"] <- factor(data$level, levels = unique(data$level), 
+                        labels = unique(data$level))
+data["subject"] <- factor(data$subject, levels = unique(data$subject), 
+                          labels = unique(data$subject))
 
 
 #10. Conviérte a variable booleana (is_paid) y asígnala a la propia columna.
@@ -86,8 +89,8 @@ length(which(data$level == "Intermediate Level"))
 data[which(data$num_subscribers == max(data$num_subscribers)),]
 data[which(data$num_subscribers == min(data$num_subscribers)),]
 
-#27. ¿Qué cursos son gratuitos? 
-data[which(data$price == 0),]
+#27. ¿Qué cursos son gratuitos?
+data[data$is_paid == F,]
 
 #28. Comprueba utilizando el boxplot si la variable num_reviews tiene outliers.
 boxplot(data$num_reviews)
@@ -96,17 +99,17 @@ boxplot(data$num_reviews)
 hist(data$price)
 
 #30. Crea una función (cheap_expensive) ...
-cheap_expensive <- function (price, threshold){
+cheap_expensive <- function (price, threshold=6000){
   if(price < threshold)
     return("CHEAP")
   else
     return("EXPENSIVE")
 }
-cheap_expensive(100, mean(data$price))
-cheap_expensive(45,mean(data$price))
+cheap_expensive(100)
+cheap_expensive(7000)
 
 #31. ...aplica la función anterior a toda la columna price_detail_amount.
-data <- cbind(data, cheap_expensive = sapply(data$price, cheap_expensive, threshold = mean(data$price)))
+data <- cbind(data, cheap_expensive = sapply(data$price, cheap_expensive))
 
 #32. Repite el ejercicio anterior usando el paquete PURRR
 library(purrr)
