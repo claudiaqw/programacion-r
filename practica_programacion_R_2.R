@@ -137,18 +137,3 @@ data.dt[year(published_timestamp) > 2015,
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
