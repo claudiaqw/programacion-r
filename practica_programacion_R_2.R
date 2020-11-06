@@ -19,7 +19,8 @@ data <- unite(data, course_id_title, course_id, course_title, sep = "_", remove 
 
 #2. Sobreescribe el valor de las columnas published_timestamp por una columna de tipo fecha.
 # data["published_timestamp"] <- as.Date(data$published_timestamp) -> information about hour,day,minute, timezone is lost
-data["published_timestamp"] <- as.POSIXct(data$published_timestamp, format = "%y-%m-%dT%h:%m:%s", tz = Sys.timezone())
+library(lubridate)
+data["published_timestamp"] <- ymd_hms(data$published_timestamp)
 
 
 #3. Crea un long dataset ... (from wide to long)
@@ -27,14 +28,15 @@ data["published_timestamp"] <- as.POSIXct(data$published_timestamp, format = "%y
 long_dataset_tidyr <- pivot_longer(data, 
                             cols = c(num_subscribers, num_reviews,  num_lectures), 
                             names_to = "VARIABLE", 
-                            values_to = "VALUE")[c("course_id", "course_title", "VARIABLE", "VALUE")]
-
+                            values_to = "VALUE")
+[c("course_id", "course_title", "VARIABLE", "VALUE")]
 
 #reshape2
 long_dataset_reshape2 = melt(data, 
                              id.vars = setdiff(colnames(data), c("num_subscribers", "num_reviews",  "num_lectures")),
                              variable.name="VARIABLE", 
-                             value.name="VALUE")[c("course_id", "course_title", "VARIABLE", "VALUE")]
+                             value.name="VALUE")
+[c("course_id", "course_title", "VARIABLE", "VALUE")]
 
 
 #4. proceso inverso (from long to wide)
@@ -42,7 +44,6 @@ long_dataset_reshape2 = melt(data,
 original_dataset_tidyr = pivot_wider(long_dataset_tidyr,
                                      names_from = "VARIABLE",
                                      values_from = "VALUE")
-
 
 
 #reshape2
@@ -84,10 +85,12 @@ data.dt[, .(min = min(content_duration), max = max(content_duration)), by = .(is
 #3. Calcula el número de cursos publicado cada año.
 #dplyr
 data %>% 
-  mutate(year = format(data$published_timestamp, format="%Y")) %>% 
+  mutate(year = year(published_timestamp)) %>% 
   group_by(year) %>% 
   summarise(courses_per_year = n())
 
+#data.table
+data.dt[, .(year = year(published_timestamp)), by = .(year)]
 
   
 
@@ -99,11 +102,12 @@ data %>%
   arrange(desc(class_mean)) %>% 
   slice(1)
 
+data.dt[, .(class_mean = mean(num_lectures)), by = .(subject)][order(-class_mean)][1,]
 
 #5. Restringiéndonos a los cursos lanzados en 2016, ¿qué temática cuenta con más horas de clase?
 #dplyr
 data %>% 
-  mutate(year = format(data$published_timestamp, format="%Y")) %>% 
+  mutate(year = year(published_timestamp)) %>% 
   filter(year == "2016") %>% 
   group_by(subject) %>% 
   summarise(hours_of_classes = sum(content_duration)) %>%
@@ -111,15 +115,16 @@ data %>%
   slice(1)
 
 
+
 #6. Para todos los cursos posteriores a 2015, calcula las horas del curso más largo, del más corto y el número de estudiantes medio.
 #dplyr
 data %>% 
-  mutate(year = as.numeric(format(data$published_timestamp, format="%Y"))) %>% 
+  mutate(year = as.numeric(year(published_timestamp))) %>% 
   filter(year > 2015) %>% 
   group_by(year) %>% 
-  summarise(longest_course = max(content_duration), shortest_course = min(content_duration), students_mean = mean(num_subscribers))
-  
-  
+  summarise(longest_course = max(content_duration), 
+            shortest_course = min(content_duration), 
+            students_mean = mean(num_subscribers))
 
 
 
