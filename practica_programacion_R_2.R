@@ -12,6 +12,7 @@ data["is_paid"] <- as.logical(data$is_paid)
 
 library(tidyr)
 library(reshape2)
+library(lubridate)
 
 #1.Crea una nueva course_id_title que sea la concatenación de ambas mediante un guion bajo
 data <- unite(data, course_id_title, course_id, course_title, sep = "_", remove = FALSE)
@@ -19,7 +20,6 @@ data <- unite(data, course_id_title, course_id, course_title, sep = "_", remove 
 
 #2. Sobreescribe el valor de las columnas published_timestamp por una columna de tipo fecha.
 # data["published_timestamp"] <- as.Date(data$published_timestamp) -> information about hour,day,minute, timezone is lost
-library(lubridate)
 data["published_timestamp"] <- ymd_hms(data$published_timestamp)
 
 
@@ -28,15 +28,13 @@ data["published_timestamp"] <- ymd_hms(data$published_timestamp)
 long_dataset_tidyr <- pivot_longer(data, 
                             cols = c(num_subscribers, num_reviews,  num_lectures), 
                             names_to = "VARIABLE", 
-                            values_to = "VALUE")
-[c("course_id", "course_title", "VARIABLE", "VALUE")]
+                            values_to = "VALUE")[c("course_id", "course_title", "VARIABLE", "VALUE")]
 
 #reshape2
-long_dataset_reshape2 = melt(data, 
+long_dataset_reshape2 = reshape2::melt(data, 
                              id.vars = setdiff(colnames(data), c("num_subscribers", "num_reviews",  "num_lectures")),
                              variable.name="VARIABLE", 
-                             value.name="VALUE")
-[c("course_id", "course_title", "VARIABLE", "VALUE")]
+                             value.name="VALUE")[c("course_id", "course_title", "VARIABLE", "VALUE")]
 
 
 #4. proceso inverso (from long to wide)
@@ -44,7 +42,6 @@ long_dataset_reshape2 = melt(data,
 original_dataset_tidyr = pivot_wider(long_dataset_tidyr,
                                      names_from = "VARIABLE",
                                      values_from = "VALUE")
-
 
 #reshape2
 original_dataset_reshape2 = dcast(long_dataset_reshape2,
@@ -59,7 +56,6 @@ original_dataset_reshape2 = dcast(long_dataset_reshape2,
 
 library(dplyr)
 library(data.table)
-data.dt <- as.data.table(data)
 
 #1. precio medio de los cursos dependiendo de su temática y ordena el resultado según el precio medio
 #dplyr
@@ -69,6 +65,7 @@ data  %>%
   arrange(price_mean)
 
 #data.table
+data.dt <- as.data.table(data)
 data.dt[, .(price_mean = mean(price)), by = .(subject)][order(price_mean)]
 
 
@@ -90,8 +87,7 @@ data %>%
   summarise(courses_per_year = n())
 
 #data.table
-data.dt[, .(year = year(published_timestamp)), by = .(year)]
-
+data.dt[, .(courses_per_year = .N), by = .(year(published_timestamp))]
   
 
 #4. Cuál es la temática que tiene el mayor número de clases medias
@@ -102,7 +98,9 @@ data %>%
   arrange(desc(class_mean)) %>% 
   slice(1)
 
-data.dt[, .(class_mean = mean(num_lectures)), by = .(subject)][order(-class_mean)][1,]
+#data.table
+data.dt[, .(class_mean = mean(num_lectures)), by=.(subject)][order(-class_mean)][1,]
+
 
 #5. Restringiéndonos a los cursos lanzados en 2016, ¿qué temática cuenta con más horas de clase?
 #dplyr
@@ -114,19 +112,27 @@ data %>%
   arrange(desc(hours_of_classes)) %>% 
   slice(1)
 
+#data.table
+data.dt[year(published_timestamp)==2016, 
+        .(hours_of_classes = sum(content_duration)), 
+        by=.(subject)][order(-hours_of_classes)][1,]
 
 
 #6. Para todos los cursos posteriores a 2015, calcula las horas del curso más largo, del más corto y el número de estudiantes medio.
 #dplyr
 data %>% 
-  mutate(year = as.numeric(year(published_timestamp))) %>% 
+  mutate(year = year(published_timestamp)) %>% 
   filter(year > 2015) %>% 
   group_by(year) %>% 
   summarise(longest_course = max(content_duration), 
             shortest_course = min(content_duration), 
             students_mean = mean(num_subscribers))
 
-
+#data.table
+data.dt[year(published_timestamp) > 2015, 
+        .(longest_course = max(content_duration), 
+          shortest_course = min(content_duration), 
+          students_mean = mean(num_subscribers)), by = .(year(published_timestamp))]
 
 
 
