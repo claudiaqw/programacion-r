@@ -25,10 +25,11 @@ data["published_timestamp"] <- ymd_hms(data$published_timestamp)
 
 #3. Crea un long dataset ... (from wide to long)
 #tidyr
-long_dataset_tidyr <- pivot_longer(data, 
-                            cols = c(num_subscribers, num_reviews,  num_lectures), 
-                            names_to = "VARIABLE", 
-                            values_to = "VALUE")[c("course_id", "course_title", "VARIABLE", "VALUE")]
+long_dataset_tidyr <- pivot_longer(data[c("course_id", "course_title", "num_subscribers", "num_reviews", "num_lectures")], 
+                                   cols = c(num_subscribers, num_reviews,  num_lectures), 
+                                   names_to = "VARIABLE", 
+                                   values_to = "VALUE")
+
 
 #reshape2
 long_dataset_reshape2 = reshape2::melt(data, 
@@ -47,7 +48,6 @@ original_dataset_tidyr = pivot_wider(long_dataset_tidyr,
 original_dataset_reshape2 = dcast(long_dataset_reshape2,
                                   formula = course_id + course_title ~ VARIABLE,
                                   value.var = "VALUE")
-
 
 
 ######################################################
@@ -95,8 +95,7 @@ data.dt[, .(courses_per_year = .N), by = .(year(published_timestamp))]
 data %>% 
   group_by(subject) %>% 
   summarize(class_mean = mean(num_lectures)) %>% 
-  arrange(desc(class_mean)) %>% 
-  slice(1)
+  filter(class_mean == max(class_mean))
 
 #data.table
 data.dt[, .(class_mean = mean(num_lectures)), by=.(subject)][order(-class_mean)][1,]
@@ -106,7 +105,7 @@ data.dt[, .(class_mean = mean(num_lectures)), by=.(subject)][order(-class_mean)]
 #dplyr
 data %>% 
   mutate(year = year(published_timestamp)) %>% 
-  filter(year == "2016") %>% 
+  filter(year == 2016) %>% 
   group_by(subject) %>% 
   summarise(hours_of_classes = sum(content_duration)) %>%
   arrange(desc(hours_of_classes)) %>% 
@@ -121,18 +120,18 @@ data.dt[year(published_timestamp)==2016,
 #6. Para todos los cursos posteriores a 2015, calcula las horas del curso más largo, del más corto y el número de estudiantes medio.
 #dplyr
 data %>% 
-  mutate(year = year(published_timestamp)) %>% 
-  filter(year > 2015) %>% 
-  group_by(year) %>% 
+  filter(year(published_timestamp) > 2015) %>% 
   summarise(longest_course = max(content_duration), 
             shortest_course = min(content_duration), 
             students_mean = mean(num_subscribers))
+
 
 #data.table
 data.dt[year(published_timestamp) > 2015, 
         .(longest_course = max(content_duration), 
           shortest_course = min(content_duration), 
-          students_mean = mean(num_subscribers)), by = .(year(published_timestamp))]
+          students_mean = mean(num_subscribers))]
+
 
 
 
