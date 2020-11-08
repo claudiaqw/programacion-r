@@ -32,11 +32,10 @@ head(data)
 data$RatingDist1 <- as.numeric(sub("\\d:", "", data$RatingDist1))
 data$RatingDist2 <- as.numeric(sub("\\d:", "", data$RatingDist2))
 data$RatingDist3 <- as.numeric(sub("\\d:", "", data$RatingDist3))
-data$RatingDist4 <- as.numeric(sub("\\d:", "", data$RatingDist5))
+data$RatingDist4 <- as.numeric(sub("\\d:", "", data$RatingDist4))
 data$RatingDist5 <- as.numeric(sub("\\d:", "", data$RatingDist5))
 
 data$RatingDistTotal <- as.numeric(sub("(total):", "", data$RatingDistTotal))
-
 
 boxplot(data$Rating)
 
@@ -45,12 +44,11 @@ hist(data$Rating)
 
 #Data manipulation
 
-#1. Determinar los libros que han obtenido las mejores evaluaciones (con valor mayor que 4).
+#1. Determinar cuántos libros tienen la máxima evaluación
 
 data %>% 
-  select(Name, Rating) %>% 
-  filter(Rating > 4) %>% 
-  arrange(desc(Rating))
+  filter(Rating == max(Rating)) %>% 
+  summarise(count = n())
 
 
 #2. Determinar los libros que tienen la máxima evaluación
@@ -115,9 +113,14 @@ data %>%
   select(Name, PublishYear, Rating) %>% 
   group_by(PublishYear) %>% 
   filter(Rating == max(Rating)) %>% 
-  arrange(PublishYear)
+  arrange(desc(Rating))
 
  
+#11. Cantidad de libros publicados por año
+data %>% 
+  group_by(PublishYear) %>% 
+  summarise(count = n()) %>% 
+  arrange(desc(count))
 
 
 

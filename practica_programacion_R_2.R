@@ -19,7 +19,6 @@ data <- unite(data, course_id_title, course_id, course_title, sep = "_", remove 
 
 
 #2. Sobreescribe el valor de las columnas published_timestamp por una columna de tipo fecha.
-# data["published_timestamp"] <- as.Date(data$published_timestamp) -> information about hour,day,minute, timezone is lost
 data["published_timestamp"] <- ymd_hms(data$published_timestamp)
 
 
@@ -76,7 +75,8 @@ data %>%
   summarise(min = min(content_duration), max = max(content_duration))
 
 #data.table
-data.dt[, .(min = min(content_duration), max = max(content_duration)), by = .(is_paid)]
+data.dt[, .(min = min(content_duration), max = max(content_duration)), 
+        by = .(is_paid)]
 
   
 #3. Calcula el número de cursos publicado cada año.
@@ -98,18 +98,19 @@ data %>%
   filter(class_mean == max(class_mean))
 
 #data.table
-data.dt[, .(class_mean = mean(num_lectures)), by=.(subject)][order(-class_mean)][1,]
+data.dt[, .(class_mean = mean(num_lectures)), 
+        by=.(subject)][order(-class_mean)][1,]
 
 
 #5. Restringiéndonos a los cursos lanzados en 2016, ¿qué temática cuenta con más horas de clase?
 #dplyr
 data %>% 
-  mutate(year = year(published_timestamp)) %>% 
-  filter(year == 2016) %>% 
+  filter(year(published_timestamp) == 2016) %>% 
   group_by(subject) %>% 
   summarise(hours_of_classes = sum(content_duration)) %>%
   arrange(desc(hours_of_classes)) %>% 
   slice(1)
+
 
 #data.table
 data.dt[year(published_timestamp)==2016, 
