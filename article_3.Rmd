@@ -16,107 +16,120 @@ El objetivo de este proyecto es realizar un análisis exploratorio sobre un dete
 
 ## Exploración de los datos
 
-En esta sección se describe el proceso de carga e inspección de los datos. Del conjunto original, debido a su gran tamaño, solo se ha utilizado el fichero book1-100k.csv. 
+En esta sección se describe el proceso de carga e inspección de los datos. Del conjunto original, debido a su gran tamaño, solo se ha utilizado el fichero book1-100k.csv. El almacenamiento de datos se efectúa en una estructura de tipo dataframe el cual facilita el análisis futuro. A continuación se listan las diferentes variables presentes en los datos.  
 
-
-```{r load}
+```{r load, echo=FALSE}
 data <- read.csv('data/book1-100k.csv', header = TRUE, sep = ",", stringsAsFactors = FALSE)
 str(data)
 
 ```
 
-El *dataset* está formado por 58 292 filas y 12 columnas que representan el nombre (**Name**), los detalles de publicación (**Author**, **pagesNumber**, **Publisher**, **Language**, **ISBN**, **PublishDay**,  **PublishMonth**, **PublishYear**) la y evaluación (**RatingDistn**: cantidad de *ratings* con valor *n = (1 .. 5)* , **RatingDistTotal**, **CountsOfReview**) de  cada libro en la colección. 
+El *dataset* está formado por 58 292 filas y 12 columnas. Cada columna constituye una propiedad de una observación del *dataset*, en este caso, cada observación corresponde a un libro. De los libros se almacena el **Id**, el **Name**, los detalles de su publicación expresados en las variables: **Author**, **pagesNumber**, **Publisher**, **Language**, **ISBN**, **PublishDay**,  **PublishMonth** y **PublishYear**, así como la evaluación total **RatingDistTotal** y específica **RatingDistn**, que representa la cantidad de *ratings* con valor *n = (1 .. 5)*. Asimismo, se almacena la cantidad de *reviews* en la variable **CountsOfReview** de  cada libro en la colección. 
 
 ## Preparación y limpieza
 Con el fin de facilitar el tratamiento y manipulación de los datos en pasos posteriores son necesarios los siguientes cambios:
 
 * En las columnas de tipo **character** aparece la cadena vacía para representar que se desconoce ese propiedad de una observación (Ejemplo: columna **ISBN**, observación 1), para un mayor control se reemplaza la cadena vacía por el valor NA.
+
 ```{r isbn}
 data[data==""]<-NA
 ```
-* Las columnas **RatingDistn** y **RatingDistTotal** de tipo **character** siguen el formato *n:m* y *total:m* respectivamente donde *m* representa la cantidad de evaluaciones con valor *n* y total que ha recibido un libro. Con el fin de facilitar la comparación entre valores numéricos es apropiado contar solamente con el valor numérico *m*.
+
+* Las columnas **RatingDistn** de tipo **character** siguen el formato *n:m*, donde *m* representa la cantidad de evaluaciones con valor *n*. Asimismo, la columna **RatingDistTotal** con formato *total:m* representa el total de evaluaciones que ha recibido un libro. Con el fin de facilitar la comparación entre valores numéricos es apropiado contar solamente con el valor numérico *m*. A continuación se muestra cómo se lleva a cabo dicha transformación.
+
 ```{r rat, eval=FALSE}
+library(stringr)
+data$RatingDist1 <- as.numeric(sub("\\d:", "", data$RatingDist1))
+
+data$RatingDistTotal <- as.numeric(sub("(total):", "", data$RatingDistTotal))
+```
+
+```{r rat2, eval=FALSE, echo=FALSE}
 library(stringr)
 data$RatingDist1 <- as.numeric(sub("\\d:", "", data$RatingDist1))
 data$RatingDist2 <- as.numeric(sub("\\d:", "", data$RatingDist2))
 data$RatingDist3 <- as.numeric(sub("\\d:", "", data$RatingDist3))
-data$RatingDist4 <- as.numeric(sub("\\d:", "", data$RatingDist5))
+data$RatingDist4 <- as.numeric(sub("\\d:", "", data$RatingDist4))
 data$RatingDist5 <- as.numeric(sub("\\d:", "", data$RatingDist5))
+
 data$RatingDistTotal <- as.numeric(sub("(total):", "", data$RatingDistTotal))
 ```
 
 ## Manipulación de datos
 
-Una vez hechos los cambios necesarios, es posible pasar a la manipulación y descubrimiento de **insights** a partir de los datos.
+Una vez hechos los cambios necesarios, es posible pasar a la manipulación y descubrimiento de *insights* a partir de los datos.
+A continuación se expone un histograma que muestra la distribución de los *ratings* numéricos.
 
-```{r hist}
+
+```{r hist, echo = FALSE, fig.width = 5, fig.height= 4, fig.align='center'}
+
 hist(data$Rating)
+
 ```
+Es posible observar que la mayor parte de los valores de los *ratings* oscila entre los valores 3.5 y 4.5. Analizando el gráfico desde el valor 2 hasta el 5 se puede notar que la curva se asimila a una distribución normal, lo que significa existe mayor probabilidad de que los usuarios den valores cercanos a la media. Asimismo, se puede constatar que es mayor la cantidad de personas que no emiten ninguna evaluación que los que dan *rating* cercano a 1 estrella.  
 
-La figura anterior representa un histograma que muestra la distribución de los *ratings*, donde es posible observar que la mayor parte oscila entre los valores 3.5 y 4.5. 
+A continuación se listan un conjunto de requerimientos informacionales y las respuestas sobre el conjunto de datos en cuestión. Nótese que en todos los casos se ha truncado el dataframe respuesta para una mejor visualización.
 
-A continuación se listan un conjunto de requerimientos informacionales y las sentencias que dan respuesta utilizando la biblioteca **dplyr**. Nótese que en todos los casos se ha truncado el dataframe respuesta para una mejor visualización.
+1. Determinar cuántos libros tienen la máxima evaluación
 
-1. Determinar los libros que tienen la máxima evaluación
-
-```{r second, warning=FALSE, message=FALSE}
+```{r second, warning=FALSE, message=FALSE, echo=FALSE}
 library(dplyr)
 data %>% 
-  select(Name, Rating) %>% 
   filter(Rating == max(Rating)) %>% 
-  slice_head(n=3)
+  summarise(count = n())
 ```
+De los 58 292 libros existentes en el *dataset* sólo 1 015, lo que representa el 1,7 %, tienen una calificación media de 5 estrellas.
 
-2. Determinar los libros que han logrado recoger el mayor número de reviews y Ratings de los lectores.
+2. Determinar los 10 libros que han logrado recoger el mayor número de reviews y Ratings de los lectores.
 
-```{r third, warning=FALSE, message=FALSE}
+```{r third, warning=FALSE, message=FALSE, echo = FALSE}
 data %>% 
-  select(Name, RatingDistTotal, CountsOfReview) %>% 
+  select(Name, CountsOfReview, RatingDistTotal,  Rating) %>% 
   arrange(desc(CountsOfReview), desc(RatingDistTotal)) %>% 
-  slice_head(n=3)
+  slice_head(n=5)
 ```
+Los libros anteriores son los 10 que más han provocado que los usuarios expresen su opinión, tanto positiva como negativa.
 
-3. Mostrar los libros que mayor cantidad de ratings con valor 5 tienen y sus autores.
+3. Mostrar los 5 libros que mayor cantidad de ratings con valor 5 tienen y sus autores.
 
-```{r fourth, warning=FALSE, message=FALSE}
+```{r fourth, warning=FALSE, message=FALSE, echo = FALSE}
 data %>% 
   select(Name, Authors, RatingDist5) %>%
   arrange(desc(RatingDist5)) %>% 
-  slice_head(n=3)
+  slice_head(n=5)
 ```
+De la consulta anterior se puede llegara a la conclusión que J.K. Rowling es uno de los autores más populares entre los lectores. 
 
 4. Determinar la cantidad de libros publicados por editorial.
 
-```{r five, warning=FALSE, message=FALSE}
+```{r five, warning=FALSE, message=FALSE, echo = FALSE}
 data %>% 
   group_by(Publisher) %>% 
   summarize(books_count = n()) %>% 
   arrange(desc(books_count)) %>% 
-  slice_head(n=3)
+  slice_head(n=5)
 ```
 5. Listar la media de ratings obtenida por autor para aquellos autores que han publicado al menos 50 títulos.
 
-```{r six, warning=FALSE, message=FALSE}
+```{r six, warning=FALSE, message=FALSE, echo = FALSE}
 data %>% 
   group_by(Authors) %>% 
   summarise(mean = mean(Rating), count = n()) %>% 
   filter(count >= 50) %>% 
   arrange(desc(mean)) %>% 
-  slice_head(n=3)
+  slice_head(n=5)
 ```
 
-6. El libro que ha recibido el mejor rating en cada año.
+6. Cantidad de liros publicados po año.
 
-```{r ten, warning=FALSE, message=FALSE}
+```{r ten, warning=FALSE, message=FALSE, echo = FALSE}
 data %>% 
-  select(Name, PublishYear, Rating) %>% 
   group_by(PublishYear) %>% 
-  filter(Rating == max(Rating)) %>% 
-  arrange(PublishYear) %>% 
-  slice_head(n=3)
+  summarise(count = n()) %>% 
+  arrange(desc(count))
 ```
 
 ## Conclusiones
 
-En este proyecto se ha realizado un análisis que ha permitido a partir de un conjunto de libros evaluar la aceptación por parte del público de diferentes títulos. Como resultado, es posible afirmar que uno de los libros que mayor éxito ha alcanzado desde su lanzamiento en 2006 es "**Harry Potter and the Sorcerer's Stone**" escrito por J.K. Rowling. Más detalles sobre proyecto pueden ser encontrados en https://github.com/claudiaqw/programacion-r
+En este proyecto se ha realizado un análisis que ha permitido a partir de un conjunto de libros evaluar la aceptación por parte del público de diferentes títulos. Como resultado, es posible afirmar que uno de los libros que mayor éxito ha alcanzado desde su lanzamiento en 2006 es "**Harry Potter and the Sorcerer's Stone**" y su autora J.K. Rowling, una de las más populares entrre el público lector. Asimismo, destacan las editoriales inglesas y los libros escritos en inglés por encima del resto de los idiomas. Se puede determinar que entre los años 2000 y 2007 se han publicado la mayor cantidad de libros de acuerdo a los datos recogidos en el *dataset*. Más detalles sobre el proyecto pueden ser encontrados en https://github.com/claudiaqw/programacion-r
 
