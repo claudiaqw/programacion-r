@@ -1,5 +1,5 @@
 #reading file
-data <- read.csv('udemy_courses.csv', header = TRUE, sep = ",", stringsAsFactors = FALSE)
+data <- read.csv('data/udemy_courses.csv', header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 #redefining some columns
 data["level"] <- factor(data$level, levels = unique(data$level), labels = unique(data$level))

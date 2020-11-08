@@ -1,7 +1,7 @@
 ### Ejercicio 1
 
 #1. Lee el fichero y asígnalo a una variable. 
-data <- read.csv('udemy_courses.csv', header = TRUE, sep = ",", stringsAsFactors = FALSE)
+data <- read.csv('data/udemy_courses.csv', header = TRUE, sep = ",", stringsAsFactors = FALSE)
 
 #2. ¿De qué clase es el objeto? 
 class(data)
