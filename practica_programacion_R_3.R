@@ -45,11 +45,13 @@ hist(data$Rating)
 
 #Data manipulation
 
-#1. Determinar los libros con mejor evaluación
+#1. Determinar los libros que han obtenido las mejores evaluaciones (con valor mayor que 4).
 
 data %>% 
   select(Name, Rating) %>% 
+  filter(Rating > 4) %>% 
   arrange(desc(Rating))
+
 
 #2. Determinar los libros que tienen la máxima evaluación
 data %>% 
@@ -57,13 +59,13 @@ data %>%
   filter(Rating == max(Rating))
 
 
-#3. Determinar los libros que han logrado recoger el mayor número de reviews y Ratings
+#3. Determinar los libros que han logrado recoger el mayor número de reviews y Ratings de los lectores
 data %>% 
   select(Name, RatingDistTotal, CountsOfReview) %>% 
   arrange(desc(CountsOfReview), desc(RatingDistTotal))
 
 
-#4. Determinar los libros que mayor cantidad de ratings con valor 5 tienen
+#4. Mostrar los libros que mayor cantidad de ratings con valor 5 tienen y sus autores
 data %>% 
   select(Name, Authors, RatingDist5) %>%
   arrange(desc(RatingDist5))
@@ -109,11 +111,11 @@ data %>%
 
 
 #10. El libro que ha recibido el mejor rating en cada año
-tail(data %>% 
+data %>% 
   select(Name, PublishYear, Rating) %>% 
   group_by(PublishYear) %>% 
   filter(Rating == max(Rating)) %>% 
-  arrange(PublishYear))
+  arrange(PublishYear)
 
  
 
