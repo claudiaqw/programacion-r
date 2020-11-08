@@ -113,18 +113,7 @@ data <- cbind(data, cheap_expensive = sapply(data$price, cheap_expensive))
 
 #32. Repite el ejercicio anterior usando el paquete PURRR
 library(purrr)
-data <- cbind(data, cheap_expensive_purr = map_chr(data$price, cheap_expensive, threshold = mean(data$price)))
+data <- cbind(data, cheap_expensive_purr = map_chr(data$price, cheap_expensive))
 
 identical(data$cheap_expensive,data$cheap_expensive_purr)
-
-
-unique(data$level)
-
-d1 <- factor(data$level, levels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"), labels = c("Beginner Level", "Intermediate Level", "Expert Level", "All Levels"))
-d2 <- factor(data$level, levels = unique(data$level), labels = unique(data$level))
-
-identical(d1,d2)
-class(d1)
-class(d2)
-
 
