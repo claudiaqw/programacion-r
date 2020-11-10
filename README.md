@@ -1,4 +1,4 @@
-# Programming for Data Science and Big Data
+# Programming for Data Science and Big Data in R
 ### Máster en Data Science y Big Data
 ### AFI Escuela de Finanzas
 by Claudia Quintana Wong
